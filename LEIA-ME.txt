@@ -1,0 +1,16 @@
+Configurações:
+
+No arquivo index.php, configure o IP do servidor:
+
+	var serverIP = '192.169.9.119';
+
+No arquivo server.php configure o IP e porta do server
+
+	$host = '192.169.9.119'; 
+	$port = 5000; 
+
+Inicie o servidor local PHP.
+
+Abra no browser o server.php, ou inicie via terminal, e mantenha o servidor rodando.
+
+Abra em outra aba, ou em outra máquina o chat.php para poder usar a aplicação
