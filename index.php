@@ -5,7 +5,7 @@
 </head>
 
 <script type="text/javascript">
-	var serverIP = '192.169.9.119'; //NECESSÁRIO CONFIGURAR
+	var serverIP = '10.255.5.160:5000'; //NECESSÁRIO CONFIGURAR
 </script>
 
 <style type="text/css">
@@ -40,7 +40,7 @@ $user_colour = array_rand($colours);
 ?>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href="./bootstrap/css/bootstrap.min.css">
-<script type="text/javascript" src="/jsencrypt/bin/jsencrypt.js"></script>
+<script type="text/javascript" src="js/jsencrypt/bin/jsencrypt.js"></script>
 <script type="text/javascript" src="./js/md5.min.js"></script>
 
 <script language="javascript" type="text/javascript">  
@@ -60,7 +60,7 @@ var logged = [];
 $(document).ready(function(){
 
 	//create a new WebSocket object.
-	var wsUri = "ws://"+serverIP+":5000/chat/server.php";
+	var wsUri = "ws://"+serverIP+"/chat/server.php";
 	websocket = new WebSocket(wsUri); 
 	
 	
