@@ -4,10 +4,15 @@
 // "a" representa que o arquivo é aberto para ser escrito
 //@delete("../../public_key/".$_POST['nick'].".txt");
 $fp = fopen("../pubkeys/".md5($_POST['nick']).".txt", "w");
- 
 // Escreve "exemplo de escrita" no bloco1.txt
-$escreve = fwrite($fp, $_POST['public_key']);
- 
+$escreve = fwrite($fp, $_POST['public_key']); 
+// Fecha o arquivo
+fclose($fp);
+
+
+$fp = fopen("../pubkeys/".md5($_POST['nick'])."_c.txt", "w");
+// Escreve "exemplo de escrita" no bloco1.txt
+$escreve = fwrite($fp, $_POST['public_certificate']); 
 // Fecha o arquivo
 fclose($fp);
 ?>

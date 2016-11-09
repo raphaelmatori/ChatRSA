@@ -49,6 +49,10 @@ $user_colour = array_rand($colours);
 var users_online = [];
 var publicKey;
 var privateKey;
+
+var publicKey_c;
+var privateKey_c;
+
 var person = prompt("Please enter your name", "Guest"+ Math.floor(Math.random() * (99999 - 0 + 1)));
 var lastPlainText = '';
 var logged = [];
@@ -64,9 +68,13 @@ $(document).ready(function(){
 	  crypt.getKey();
       privateKey = crypt.getPrivateKey();
       publicKey= crypt.getPublicKey();
-       
 
-      jQuery.post( "./command/savePublicKey.php", { nick: person, public_key: publicKey } ).done(function() {});
+      crypt = new JSEncrypt();
+      crypt.getKey();
+      publicKey_c = crypt.getPrivateKey();
+      privateKey_c = crypt.getPublicKey();
+
+      jQuery.post( "./command/savePublicKey.php", { nick: person, public_key: publicKey, public_certificate: publicKey_c } ).done(function() {});
       $("#myname").append(""+person);  
       
 
@@ -123,7 +131,7 @@ $(document).ready(function(){
 				
 			}
 				crypt = new JSEncrypt();
-				crypt.setPrivateKey(privateKey);//assinando com minha chave pública
+				crypt.setPublicKey(privateKey_c);//assinando com minha chave privada o certificado
 				signature = crypt.encrypt(digest);
 				
 			
@@ -137,7 +145,6 @@ $(document).ready(function(){
 		color : '<?php echo $colours[$user_colour]; ?>'
 		};
 
-		//console.log(msg);
 		//convert and send data to server
 		websocket.send(JSON.stringify(msg));
 
@@ -151,9 +158,7 @@ $(document).ready(function(){
 	        };
 	        	setInterval(function(){ 
 	        websocket.send(JSON.stringify(msg));
-	        //console.log("enviando "+person);
-	        }, 2000); //Manda o nome para o servidor a cada 2 segundos
-
+	        }, 2000); 
 
 			setInterval(function(){ 
 	        	removeSeOffline();
@@ -191,22 +196,16 @@ $(document).ready(function(){
 				crypt = new JSEncrypt();
 				crypt.setPrivateKey(privateKey);//Utilizando minha chave privada para ler
 				umsg = crypt.decrypt(umsg);
-				//console.log("umsg ->"+umsg);
+
 			}
 			else if(uname == person && duname == "")
 			{
 				crypt = new JSEncrypt();
 				crypt.setPrivateKey(publicKey);//Utilizando minha chave publica para ler
 				umsg = crypt.decrypt(umsg);
-				//console.log("iguais ->"+umsg);
+
 			}
-	/*		else
-			{
-				crypt = new JSEncrypt();
-				crypt.setPublicKey(publicKey);//Utilizando minha chave privada para ler
-				umsg = crypt.decrypt(umsg);
-				console.log(umsg);
-			}*/
+
 			
 			if(!umsg)
 				umsg = backText;
@@ -218,22 +217,22 @@ $(document).ready(function(){
 				var publicKeyDst = "";
 			
 				$.ajax({
-					url : "./pubkeys/"+md5(uname)+".txt",
+					url : "./pubkeys/"+md5(uname)+"_c.txt",
 					async: false, 
 				    dataType: "text",
 				    success : function (data) {
 				    publicKeyDst = data;
 				    }
 				});
+
+
 				crypt = new JSEncrypt();
-				crypt.setPublicKey(publicKey);//Utilizando chave publica para ler
+				crypt.setPrivateKey(publicKeyDst);//Utilizando chave publica para ler
 				signature = crypt.decrypt(signature);
 
-				if(md5(umsg) != md5(signature))
+				if(md5(umsg) != signature)
 					{
-						/*console.log("ERRO no hash. Era pra ser:");
-						console.log(md5(umsg));
-						console.log(signature);*/
+						alert("MENSAGEM FALSA ->"+umsg);
 					}
 			}
 		}
@@ -328,7 +327,6 @@ $(document).ready(function(){
 		
 			for(var i = 0; i < this.users_online.length; i++)
 			{
-				console.log("tenta encontrar...")
 				var encontrou = 0;
 				var options = $('#private').children();
 			
@@ -341,12 +339,6 @@ $(document).ready(function(){
 			}
 		  		
 	
-		  			
-		  			
-
-		//console.log(clone);
-		//console.log(this.users_online);
-		//var count = $("#private").children().length;
 		if(different != 0 )
 		{
 			$('#private').find('option').remove().end();
@@ -368,7 +360,6 @@ function keepLogged(name)
 			{
 				flag = 1;
 				this.logged[i].keep = 1;	
-				//console.log("Mantem eu logado =>"+name);
 			}
 
 		if(flag == 0)
@@ -382,7 +373,6 @@ function perguntaSeOnline()
 	for(var i=0; i < this.logged.length; i++)
 	{
 		this.logged[i].keep = 0;	
-		//console.log("nome => "+this.logged[i].name+" keep"+this.logged[i].keep);
 	}
 }
 
@@ -395,17 +385,14 @@ function removeSeOffline()
 	for(var i=0; i < this.logged.length; i++)
 		if(this.logged[i].keep == 0)
 		{
-			//console.log("User =>"+this.logged[i].keep+" keep =>"+this.logged[i].keep);
 			auxIndex.push(i);
 		}
-		//console.log(auxIndex);
 	
 	for(var i=0; i < this.users_online.length; i++)
 		for(var j=0; j < auxIndex.length; j++)
 			if(this.logged[auxIndex[j]] != null)
 			if(this.users_online[i] == this.logged[auxIndex[j]].name)
 			{
-				//console.log("Entrei no splice ->"+ this.users_online[i]);
 				this.users_online.splice(i,1);
 				this.logged.splice(j,1);
 			}
